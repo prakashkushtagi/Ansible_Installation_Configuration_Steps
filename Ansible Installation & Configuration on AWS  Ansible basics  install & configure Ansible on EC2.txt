@@ -1,0 +1,56 @@
+Installation :
+
+1. Lunch Red-Hat Linux or Ubuntu EC2 instances
+2. Update your EC2 instances
+	Linux:
+	yum update
+	Ubuntu:
+	apt-get update
+3. Add a 3rd party repository named EPEL (Extra package for Enterprice Linux)
+	rpm -Uvh https://d1.fedoreproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+4. Install Ansible
+	(Linux) yum install ansible (Ubuntu) apt-get install ansible
+5. Check ansible vesrion
+	ansible --version
+
+
+6. Create a new user for ansible administration & grant admin access to user (Master and Slave)
+
+	useradd ansadmin
+	passwd ansadmin
+	# below command addes ansadmin to sudoers file. But strongly recommended to use "visudo" command if you are aware vi or nano editor. 
+	echo "ansadmin ALL=(ALL) ALL" >> /etc/sudoers
+	Using keybased authentication is advised. If you are still at learning stage use password based authentication (Master & Slave)
+
+# sed command replaces "PasswordAuthentication no to yes" without editing file 
+ sed -ie 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+Login as a ansadmin user on master and generate ssh key (Master)
+
+	ssh-keygen
+
+Copy keys onto all ansible client nodes (Master)
+
+	ssh-copy-id <target-server>
+
+Update target servers information on /etc/ansible/hosts file (Master)
+
+	echo "<target server IP>" > /etc/ansible/hosts
+
+Run ansible command as ansadmin user it should be successful (Master)
+
+	ansible all -m ping
+
+
+Ansible Simple Commands :
+
+Rebooting : ansible all -a "/sbin/reboot/"
+Copy file : ansible all -m copy -a "src=...... dest=....."
+Create User : ansible all -m user -a "name=testuser password=<encrypted password>"
+Remove User : ansible all -m user -a "name=testuser state=absent"
+Change file permision : ansible all -m file -a "dest=...... mode=777"
+Install package : ansible all -m yum -a "name=httpd state=latest"
+Start Service : ansible all -m service -a "name=httpd state=started"
+Stop Service : ansible all -m service -a "name=httpd state=stopped"
+
+
